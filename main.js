@@ -330,7 +330,9 @@ function checkErr(negative, pass, fail) {
           }
         }
       } else {
-        fail('Unexpected error: ' + err.message.replace(/^uncaught\W+/i, ''));
+        const loc = typeof err.lineno !== "undefined" ? err.lineno : "";
+        const msg = err.message.replace(/^uncaught.*?:/i, '');
+        fail('Unexpected error'+(loc?` [${loc}]`:'')+': ' + msg);
       }
     }
   };
