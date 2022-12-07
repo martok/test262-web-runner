@@ -456,8 +456,10 @@ function makeProgressBar(count, total) {
 
 function increment(ancestors) {
   ancestors.forEach(function(ele) {
+    const progress = ele.querySelector('span span');
+    if (!progress) return;
     ++ele.doneCount;
-    ele.querySelector('span span').textContent = makeProgressBar(ele.doneCount, ele.totalCount);
+    progress.textContent = makeProgressBar(ele.doneCount, ele.totalCount);
   });
 }
 
@@ -467,6 +469,7 @@ function runSubtree(root, then, ancestors, toExpand) {
     return;
   }
   var status = root.querySelector('span');
+  var runBtn = status.firstElementChild;
   if (root.path) { // i.e. is a file
     if (skippedRegex.test(root.path[root.path.length - 1])) {
       status.textContent = 'Skipped by runner.';
@@ -503,6 +506,7 @@ function runSubtree(root, then, ancestors, toExpand) {
         addFailure(root.path, msg);
         status.textContent = msg;
         status.className = 'fail fail-message';
+        status.insertBefore(runBtn, status.firstChild);
         root.passes = 0;
         root.fails = 1;
         root.skips = 0;
