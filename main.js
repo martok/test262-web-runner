@@ -253,6 +253,7 @@ function runSources(arg, done) {
       done(err, w);
     };
     w.addEventListener('error', function(e) {
+      e.preventDefault();
       err = e;
       w.$$testFinished();
     });
