@@ -22,7 +22,7 @@ self.addEventListener('fetch', function(event) {
       const rv = new Promise((res, rej) => {
         resolve = res; reject = rej;
       });
-      setTimeout(() => reject('timed out'), 2000);
+      setTimeout(() => reject('timed out'), 10000);
 
       chan.port1.onmessage = e => {
         if (!e.data.success) {

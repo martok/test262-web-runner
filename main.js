@@ -213,7 +213,7 @@ function parseFrontmatter(src) {
 
 var errSigil = {};
 var noCompletionSigil = {};
-var asyncWait = 500; // ms
+var asyncWait = 5000; // ms
 var iframeSrc = ''; // will be set to './blank.html' if the environment does not report error details when src = ''.
 var iframes = [];
 
