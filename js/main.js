@@ -389,7 +389,7 @@ class TestRunner {
                 } else {
                     const loc = typeof err.lineno !== "undefined" ? err.lineno : "";
                     const msg = err.message.replace(/^uncaught.*?:/i, '');
-                    onFail('Unexpected error'+(loc?` [${loc}]`:'')+': ' + msg);
+                    onFail('Unexpected error: ' + msg + (loc?`\nat line ${loc}`:''));
                 }
             }
         };
