@@ -7,29 +7,79 @@
 	<link rel="stylesheet" href="css/bootstrap_3.3.7.min.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/jszip.min.js"></script>
-	<script src="js/main.js"></script>
+	<script src="js/main.js" type="module"></script>
 </head>
 <body>
-	<input type="file" accept=".zip" id="fileLoader" style="display: none;">
-	<div id="controls" style="display: none;">
-		<input type="button" value="Pause" id="pause" class="btn btn-primary btn-lg">
-		<input type="button" value="Cancel" id="cancel" class="btn btn-danger btn-lg">
+	<div class="page-header">
+		<h1>Test262 Web Runner</h1>
+		<p class="lead">Run the official <a href="https://github.com/tc39/test262">ECMAScript conformance tests</a> in your browser.</p>
 	</div>
-	<div class="container">
-		<div class="page-header">
-			<h1>Test262 Web Runner</h1>
-			<p class="lead">Run the official <a href="https://github.com/tc39/test262">ECMAScript conformance tests</a> in your browser.</p>
-		</div>
+
+	<fieldset id="tab-file" disabled="disabled">
+		<legend>Test Archive</legend>
+
+		<input type="file" accept=".zip" id="fileLoader" style="display: none;">
 		<div id="buttons">
 			Load a .zip of <a href="https://github.com/tc39/test262.git">the Test262 repository</a> (e.g. <a href="https://api.github.com/repos/tc39/test262/zipball">this</a>):
 			<input type="button" class="btn btn-default btn-sm" id="loadLocal" value="Local">
-			<input type="button" class="btn btn-default btn-sm" id="loadGithub" value="Remote">
-			<div id="loadStatus" style="display: none;">Loading... <span id="loadFraction"></span></div>
+			<div id="loadStatus" style="display: none;">Loading...</div>
 		</div>
-		<div id="tree"></div>
-		<div id="failures" style="display: none;">
-			<span id="failuresToggle">[+] Test failures (<span id="failuresCount">0</span>):</span>
-			<ul id="failList" style="display: none;"></ul>
-		</div><br>
-	</div>
+	</fieldset>
+
+	<fieldset id="tab-setup" disabled>
+		<legend>Test Selection</legend>
+
+		<div class="form-inline">
+			<label for="test-filter-regex">Set by regex:</label>
+			<input type="text" value=".*" id="test-filter-regex" class="form-control input-sm">
+			<input type="button" class="btn btn-default btn-sm" id="filter-include" value="Include">
+			<input type="button" class="btn btn-default btn-sm" id="filter-exclude" value="Exclude">
+			<input type="button" value="Run Selection" id="run-start" class="btn btn-primary">
+		</div>
+		<div id="tests-tree"></div>
+	</fieldset>
+
+	<fieldset id="tab-status" disabled>
+		<legend>Status</legend>
+
+		<div class="form-inline">
+			<input type="button" value="Cancel" id="run-cancel" class="btn btn-danger">
+			<input type="button" value="Pause" id="run-pause" class="btn btn-primary">
+			<span id="status-text"></span>
+		</div>
+	</fieldset>
+
+	<fieldset id="tab-report" disabled>
+		<legend>Report</legend>
+
+		<div class="form-inline">
+			<input type="button" class="btn btn-default btn-sm" id="report-update" value="Update">
+			<div class="form-group">
+				<label>
+					<input type="checkbox" id="report-include-passed">
+					Include Passed
+				</label>
+			</div>
+			<div class="form-group">
+				<label>
+					<input type="checkbox" id="report-include-failed" checked="checked">
+					Include Failed
+				</label>
+			</div>
+			<div class="form-group">
+				<label>
+					<input type="checkbox" id="report-include-skipped">
+					Include Skipped
+				</label>
+			</div>
+			<div class="form-group">
+				<label>
+					<input type="checkbox" id="report-group-pass" checked="checked">
+					Group by Pass/Fail
+				</label>
+			</div>
+			<input type="button" class="btn btn-default btn-sm" id="report-copy" value="Copy to Clipboard">
+		</div>
+		<pre id="report"></pre>
+	</fieldset>
 </body>
