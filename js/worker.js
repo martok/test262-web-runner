@@ -1,3 +1,7 @@
+const CONFIG = {
+  scriptLoadTimeout: 10000,
+};
+
 self.addEventListener('fetch', function(event) {
   // 'blank.html' resolves for all paths.
   // We use this to run scripts containing a dynamic import on a synthetic page which has the right URL to serve its depedencies.
@@ -22,7 +26,7 @@ self.addEventListener('fetch', function(event) {
       const rv = new Promise((res, rej) => {
         resolve = res; reject = rej;
       });
-      setTimeout(() => reject('timed out'), 10000);
+      setTimeout(() => reject('timed out'), );
 
       chan.port1.onmessage = e => {
         if (!e.data.success) {

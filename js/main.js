@@ -2,9 +2,9 @@ import { html } from 'https://cdn.jsdelivr.net/npm/uhtml@4.5.0/node.js';
 
 const CONFIG = {
     maxRunningTasks: 4,
-    asyncWait: 5000, // ms
-    alwaysIncludes: ['assert.js', 'sta.js'],
+    scriptAbortTimeout: 5000, // ms
     reportUpdateInterval: 1000,
+    alwaysIncludeHarness: ['assert.js', 'sta.js'],
 };
 
 class ZipFile {
@@ -346,7 +346,7 @@ class TestRunner {
                     if (completed) return;
                     self.iframes.push(iframe);
                     done(err === TestRunner.ERROR ? TestRunner.NOCOMPLETE : err);
-                }, CONFIG.asyncWait);
+                }, CONFIG.scriptAbortTimeout);
             }
         };
 
@@ -483,7 +483,7 @@ class TestRunner {
             src = 'throw new Error("NotEarlyError");\n' + src;
         }
 
-        const includeSrcs = CONFIG.alwaysIncludes.concat(meta.includes).map(include => this.harness[include]);
+        const includeSrcs = CONFIG.alwaysIncludeHarness.concat(meta.includes).map(include => this.harness[include]);
         const needsAPI = includeSrcs.some(src => src.match(/\$262\./)) || src.match(/\$262\./);
 
         const isAsync = meta.flags.async;
