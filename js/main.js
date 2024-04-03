@@ -644,7 +644,7 @@ class GUI {
         for (const fn of fileNames) {
             const item = tree[fn];
             const check = html`<input type="checkbox">`;
-            const selected = html`<span>0 / 0</span>`;
+            const selected = html`<span></span>`;
             const li = list.appendChild(html`
                 <li .testItem=${item}
                     .path=${path.concat([item.name])}
@@ -659,6 +659,7 @@ class GUI {
 
             if (item.type === 'file') {
                 li.className = 'tests-file';
+                selected.appendChild(html`<a href="#" @click="${this.onViewSource.bind(this, item)}">Src</a>`);
             } else {
                 li.className = 'tests-folder';
                 li.totalCount = item.count;
@@ -692,7 +693,6 @@ class GUI {
                         recEnabled ++;
                         totalList.push(sub);
                     }
-                    sub.selStatus.textContent = '';
                 } else {
                     descendTree(sub);
                     recTotal += sub.totalCount;
@@ -731,6 +731,17 @@ class GUI {
         }
         this._updateSelectedTests();
     }
+
+    async onViewSource(item) {
+        try {
+            const data = await item.file.async("string");
+            const w = window.open(this.testRunner.iframeSrc);
+            const pre = w.document.body.appendChild(w.document.createElement('pre'));
+            pre.textContent = data;
+        } catch (e) {
+            console.error("Error loading file. This shouldn't happen...", e);
+        }
+    };
 
     onRunStartClick() {
         this.testRunner.startNew(this.selectedTests);
@@ -843,12 +854,10 @@ class GUI {
         lines.push(`       Passed : ${passed}`);
         lines.push(`       Failed : ${failed}`);
         lines.push(`      Skipped : ${skipped}`);
+        this.reportEle.innerText = lines.join('\n');
 
         if (display.length) {
-            lines.push("");
-
             const sortByPath = (a, b) => a.path.localeCompare(b.path);
-
             let compareFn = sortByPath;
             if (groupByResult) {
                 compareFn = (a, b) => {
@@ -869,16 +878,21 @@ class GUI {
                 's': '(Skipped)'
             }
             const indentEveryLine = (str) => {
-                return str.trim().split('\n').map(l => '    ' + l);
+                return str.trim().split('\n').map(l => '    ' + l).join("\n");
             }
+            // add the rest as textNodes to insert source links
+            const texts = [];
+            texts.push(document.createTextNode("\n"));
             for (const item of display) {
-                lines.push(`${item.path.padEnd(100)}: ${statusDisplayNames[item.result]}`);
+                const p = item.path;
+                texts.push(html`<a href="#" @click=${this.onViewSource.bind(this, item)}>${p}</a>\n`);
+                texts.push(document.createTextNode(`${" ".repeat(100-p.length)}: ${statusDisplayNames[item.result]}\n`));
                 if (item.msg) {
-                    lines.push(...indentEveryLine(item.msg));
+                    texts.push(document.createTextNode(indentEveryLine(item.msg) + "\n"));
                 }
             }
+            this.reportEle.append(...texts);
         }
-        this.reportEle.innerText = lines.join('\n');
     }
 
     onReportUpdateClick() {
