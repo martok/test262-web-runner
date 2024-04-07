@@ -601,19 +601,27 @@ class GUI {
     // File
 
     async _loadFromZip(file) {
-        this.zip = new ZipFile(await JSZip.loadAsync(file));
+        this.treeEle.textContent = 'Tests:';
+
+        let t = Date.now();
+        const zip = await JSZip.loadAsync(file);
+        console.log(`Reading Zip: ${Date.now()-t} ms`);
+        t = Date.now();
+        this.zip = new ZipFile(zip);
+        console.log(`Parsing Tree: ${Date.now()-t} ms`);
         const rootFiles = this.zip.root.files;
 
-        const harness = {};
         const harnessNames = Object.keys(rootFiles.harness.files);
+        const harness = {};
         for (const hn of harnessNames) {
             harness[hn] = await this.zip.extract(['harness', hn]);
         }
-        this.testRunner.setHarness(harness, harness);
+        this.testRunner.setHarness(harness);
 
-        this.treeEle.textContent = 'Tests:';
         this.treeEle.totalCount = rootFiles.test.count;
+        t = Date.now();
         this._renderTree(rootFiles.test.files, this.treeEle, ['test'], false);
+        console.log(`Rendering Tree: ${Date.now()-t} ms`);
     }
     async onZipFileChanged() {
         const file = this.fileEle.files[0];
@@ -638,37 +646,36 @@ class GUI {
     // Setup
 
     _renderTree(tree, container, path, hide) {
-        const list = container.appendChild(html`<ul/>`);
+        const list = document.createElement('ul');
         const fileNames = Object.keys(tree);
         fileNames.sort();
         for (const fn of fileNames) {
             const item = tree[fn];
-            const check = html`<input type="checkbox">`;
-            const selected = html`<span></span>`;
             const li = list.appendChild(html`
                 <li .testItem=${item}
-                    .path=${path.concat([item.name])}
-                    .check=${check}
-                    .selStatus=${selected}>
+                    .path=${path.concat([item.name])}>
                     <div class="test-row">
-                        <span>${check} ${item.name}</span>
-                        ${selected}
+                        <span><input type="checkbox" /> ${item.name}</span>
                     </div>
                 </li>
             `);
+            const row = li.querySelector('div');
+            li.check = row.querySelector('input');
 
             if (item.type === 'file') {
                 li.className = 'tests-file';
-                selected.appendChild(html`<a href="#" @click="${this.onViewSource.bind(this, item)}">Src</a>`);
+                row.appendChild(html`<span><a href="#" @click="${this.onViewSource.bind(this, item)}">Src</a></span>`);
             } else {
                 li.className = 'tests-folder';
                 li.totalCount = item.count;
                 this._renderTree(item.files, li, li.path, true);
+                li.selStatus = row.appendChild(document.createElement('span'));
                 li.addEventListener('click', this.onTestListItemClicked.bind(this, li));
-                check.addEventListener('change', this.onTestListFolderChecked.bind(this, li));
+                li.check.addEventListener('change', this.onTestListFolderChecked.bind(this, li));
             }
         }
         container.classList.toggle('closed', !!hide);
+        container.appendChild(list);
     }
 
     _setRecursiveChecked(li) {
