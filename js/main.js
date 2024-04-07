@@ -543,9 +543,18 @@ class GUI {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('message', this.onServiceResolveSrcMessage.bind(this));
 
-            navigator.serviceWorker.register('./js/worker.js').catch(function(err) {
-                console.log('ServiceWorker registration failed: ', err);
-            });
+            (async () => {
+                // first, clear the worker list
+                for (const reg of await navigator.serviceWorker.getRegistrations()) {
+                    await reg.unregister();
+                }
+                // then register our worker for unpacking scripts
+                try {
+                    await navigator.serviceWorker.register('./js/worker.js');
+                } catch (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                }
+            })();
         }
 
         // attach events
