@@ -8,9 +8,11 @@ const CONFIG = {
 };
 
 class ZipFile {
+    jsZip;
     root = null;
 
     constructor(jsZip) {
+        this.jsZip = jsZip;
         const zipTree = this._getStructure(jsZip, (path) => path.match(/\.js$/) &&
                                                                           !path.match(/^(\.|__MACOSX)/) &&
                                                                           !path.match(/(_FIXTURE\.js$)/));
@@ -532,6 +534,7 @@ class GUI {
     treeEle = document.getElementById('tests-tree');
     reportEle = document.getElementById('report');
     zip;
+    zipFileName = '';
     selectedTests = [];
     startTime = 0;
     endTime = 0;
@@ -617,6 +620,7 @@ class GUI {
         console.log(`Reading Zip: ${Date.now()-t} ms`);
         t = Date.now();
         this.zip = new ZipFile(zip);
+        this.zipFileName = file.name;
         console.log(`Parsing Tree: ${Date.now()-t} ms`);
         const rootFiles = this.zip.root.files;
 
@@ -834,7 +838,8 @@ class GUI {
             endTime = Date.now();
         }
         const runSeconds = (endTime - this.startTime) / 1000;
-        lines.push(`   Start time : ${(new Date(this.startTime)).toISOString()}`)
+        lines.push(` Test Archive : ${this.zipFileName}`);
+        lines.push(`   Start time : ${(new Date(this.startTime)).toISOString()}`);
         lines.push(`Total runtime : ${runSeconds.toFixed(0)} s`);
         if (this.testRunner.isRunning) {
             const expTotal = runSeconds / (this.testRunner.finishedTasks / this.testRunner.totalTasks);
