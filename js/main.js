@@ -906,8 +906,9 @@ class GUI {
             texts.push(document.createTextNode("\n"));
             for (const item of display) {
                 const p = item.path;
+                const pad = (p.length<100) ? " ".repeat(100-p.length) : "";
                 texts.push(html`<a href="#" @click=${this.onViewSource.bind(this, item)}>${p}</a>\n`);
-                texts.push(document.createTextNode(`${" ".repeat(100-p.length)}: ${statusDisplayNames[item.result]}\n`));
+                texts.push(document.createTextNode(`${pad}: ${statusDisplayNames[item.result]}\n`));
                 if (item.msg) {
                     texts.push(document.createTextNode(indentEveryLine(item.msg) + "\n"));
                 }
